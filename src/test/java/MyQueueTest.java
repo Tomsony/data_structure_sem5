@@ -4,12 +4,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.junit.jupiter.params.provider.NullSource;
+import util.MyQueue;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Тесты для класса MyQueue
+ * Тесты для класса util.MyQueue
  */
 class MyQueueTest {
 

@@ -1,6 +1,10 @@
+package util;
+
+import trees.BaseNode;
+
 /**
  * Класс представляет собой реализацию узла для очереди/связного списка.
- * Наследуется от основного класса BaseNode.
+ * Наследуется от основного класса trees.BaseNode.
  */
 public class QueueNode<T> extends BaseNode<T> {
     private QueueNode<T> next; // ссылка на следующий узел
@@ -36,7 +40,7 @@ public class QueueNode<T> extends BaseNode<T> {
     @Override
     public String toString() {
         String nextInfo = (next != null) ? next.getValue().toString() : "null";
-        return "QueueNode{ " +
+        return "util.QueueNode{ " +
                 "value: = " + getValue() +
                 ", next: = " + nextInfo + " }";
     }

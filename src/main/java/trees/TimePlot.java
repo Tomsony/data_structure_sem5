@@ -1,3 +1,7 @@
+package trees;
+
+import util.MyArrayList;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 // Вспомогательный класс для измерения времени поиска в сортированном массиве и BST
@@ -5,10 +9,10 @@ public class TimePlot {
 
     public static void main(String[] args) {
         // Параметры для замера
-        int size = 100_000;
-        int min = 1;
-        int max = size * 10;
-        int maxIterations = 50000000; // Количество итераций в циклах поиска
+        int size = 100_000;     // размер массива
+        int min = 1;            // Значение первого элемента
+        int max = size * 10;    // Значение последнего элемента
+        int maxIterations = 50_000_000; // Количество итераций в циклах поиска
 
 
         // 1. Создадим сортированный массив

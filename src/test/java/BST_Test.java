@@ -4,11 +4,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import trees.BinarySearchTree;
+import trees.TreeNode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Тесты для класса BinarySearchTree
+ * Тесты для класса trees.BinarySearchTree
  */
 public class BST_Test {
 

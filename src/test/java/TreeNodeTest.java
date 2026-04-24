@@ -4,11 +4,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.params.provider.NullSource;
+import trees.BaseNode;
+import trees.TreeNode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Тесты для класса TreeNode
+ * Тесты для класса trees.TreeNode
  */
 class TreeNodeTest {
 
@@ -22,7 +24,7 @@ class TreeNodeTest {
     }
 
     @Test
-    @DisplayName("Создание TreeNode с корректным значением")
+    @DisplayName("Создание trees.TreeNode с корректным значением")
     void testTreeNodeCreationWithValidValue() {
         assertNotNull(rootNode);
         assertEquals("Root", rootNode.getValue());
@@ -32,7 +34,7 @@ class TreeNodeTest {
     }
 
     @Test
-    @DisplayName("Создание TreeNode с null значением должно выбрасывать исключение")
+    @DisplayName("Создание trees.TreeNode с null значением должно выбрасывать исключение")
     void testTreeNodeCreationWithNullValueThrowsException() {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -44,7 +46,7 @@ class TreeNodeTest {
 
     @ParameterizedTest
     @NullSource
-    @DisplayName("Параметризованный тест: создание TreeNode с null значением")
+    @DisplayName("Параметризованный тест: создание trees.TreeNode с null значением")
     void testTreeNodeCreationWithNullValueParameterized(String nullValue) {
         assertThrows(IllegalArgumentException.class,
                 () -> new TreeNode<String>(nullValue));
@@ -140,7 +142,7 @@ class TreeNodeTest {
     void testToStringWithNullChildren() {
         String result = rootNode.toString();
 
-        assertTrue(result.contains("TreeNode"));
+        assertTrue(result.contains("trees.TreeNode"));
         assertTrue(result.contains("key-value: = Root"));
         assertTrue(result.contains("left child: = null"));
         assertTrue(result.contains("right child: = null"));
@@ -157,7 +159,7 @@ class TreeNodeTest {
 
         String result = rootNode.toString();
 
-        assertTrue(result.contains("TreeNode"));
+        assertTrue(result.contains("trees.TreeNode"));
         assertTrue(result.contains("key-value: = Root"));
         assertTrue(result.contains("left child: = Left"));
         assertTrue(result.contains("right child: = Right"));
@@ -174,7 +176,7 @@ class TreeNodeTest {
 
         String result = numericNode.toString();
 
-        assertTrue(result.contains("TreeNode"));
+        assertTrue(result.contains("trees.TreeNode"));
         assertTrue(result.contains("key-value: = 100"));
         assertTrue(result.contains("left child: = 50"));
         assertTrue(result.contains("right child: = 150"));
@@ -276,7 +278,7 @@ class TreeNodeTest {
     }
 
     @Test
-    @DisplayName("Тест наследования от BaseNode")
+    @DisplayName("Тест наследования от trees.BaseNode")
     void testInheritanceFromBaseNode() {
         TreeNode<String> node = new TreeNode<>("Test");
 
@@ -286,12 +288,12 @@ class TreeNodeTest {
         node.setValue("Modified");
         assertEquals("Modified", node.getValue());
 
-        // Проверяем, что это действительно TreeNode
+        // Проверяем, что это действительно trees.TreeNode
         assertTrue(node instanceof TreeNode);
         assertTrue(node instanceof BaseNode);
     }
     /**
-     * Дополнительные тесты для граничных случаев TreeNode
+     * Дополнительные тесты для граничных случаев trees.TreeNode
      */
     @Test
     @DisplayName("Тест с очень большим деревом (глубина)")

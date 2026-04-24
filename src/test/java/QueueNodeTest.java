@@ -4,11 +4,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.params.provider.NullSource;
+import trees.BaseNode;
+import util.QueueNode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Тесты для класса QueueNode
+ * Тесты для класса util.QueueNode
  */
 class QueueNodeTest {
 
@@ -22,7 +24,7 @@ class QueueNodeTest {
     }
 
     @Test
-    @DisplayName("Создание QueueNode с корректным значением")
+    @DisplayName("Создание util.QueueNode с корректным значением")
     void testQueueNodeCreationWithValidValue() {
         assertNotNull(firstNode);
         assertEquals("First", firstNode.getValue());
@@ -32,7 +34,7 @@ class QueueNodeTest {
     }
 
     @Test
-    @DisplayName("Создание QueueNode с null значением должно выбрасывать исключение")
+    @DisplayName("Создание util.QueueNode с null значением должно выбрасывать исключение")
     void testQueueNodeCreationWithNullValueThrowsException() {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -44,7 +46,7 @@ class QueueNodeTest {
 
     @ParameterizedTest
     @NullSource
-    @DisplayName("Параметризованный тест: создание QueueNode с null значением")
+    @DisplayName("Параметризованный тест: создание util.QueueNode с null значением")
     void testQueueNodeCreationWithNullValueParameterized(String nullValue) {
         assertThrows(IllegalArgumentException.class,
                 () -> new QueueNode<String>(nullValue));
@@ -103,7 +105,7 @@ class QueueNodeTest {
     void testToStringWithNullNext() {
         String result = firstNode.toString();
 
-        assertTrue(result.contains("QueueNode"));
+        assertTrue(result.contains("util.QueueNode"));
         assertTrue(result.contains("value: = First"));
         assertTrue(result.contains("next: = null"));
     }
@@ -116,7 +118,7 @@ class QueueNodeTest {
 
         String result = firstNode.toString();
 
-        assertTrue(result.contains("QueueNode"));
+        assertTrue(result.contains("util.QueueNode"));
         assertTrue(result.contains("value: = First"));
         assertTrue(result.contains("next: = Second"));
     }
@@ -129,7 +131,7 @@ class QueueNodeTest {
 
         String result = numericNode.toString();
 
-        assertTrue(result.contains("QueueNode"));
+        assertTrue(result.contains("util.QueueNode"));
         assertTrue(result.contains("value: = 42"));
         assertTrue(result.contains("next: = 100"));
     }
@@ -231,7 +233,7 @@ class QueueNodeTest {
     }
 
     @Test
-    @DisplayName("Тест наследования от BaseNode")
+    @DisplayName("Тест наследования от trees.BaseNode")
     void testInheritanceFromBaseNode() {
         QueueNode<String> node = new QueueNode<>("Test");
 
@@ -241,7 +243,7 @@ class QueueNodeTest {
         node.setValue("Modified");
         assertEquals("Modified", node.getValue());
 
-        // Проверяем, что это действительно QueueNode
+        // Проверяем, что это действительно util.QueueNode
         assertTrue(node instanceof QueueNode);
         assertTrue(node instanceof BaseNode);
     }

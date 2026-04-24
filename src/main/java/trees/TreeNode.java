@@ -1,7 +1,9 @@
+package trees;
+
 /**
  * Класс представляет собой реализацию узла для бинарного дерева.
  * Класс использует ссылочный тип T.
- * Наследуется от основного класса BaseNode.
+ * Наследуется от основного класса trees.BaseNode.
  */
 public class TreeNode<T> extends BaseNode<T> {
     private TreeNode<T> leftChild; // ссылка на левого потомка
@@ -52,7 +54,7 @@ public class TreeNode<T> extends BaseNode<T> {
     public String toString() {
         String leftInfo = (leftChild != null) ? leftChild.getValue().toString() : "null";
         String rightInfo = (rightChild != null) ? rightChild.getValue().toString() : "null";
-        return "TreeNode{ " +
+        return "trees.TreeNode{ " +
                 "key-value: = " + getValue() +
                 ", left child: = " + leftInfo +
                 ", right child: = " + rightInfo + " }";

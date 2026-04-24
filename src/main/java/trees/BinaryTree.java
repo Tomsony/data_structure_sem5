@@ -1,3 +1,10 @@
+package trees;
+
+import util.MyQueue;
+import util.MyStack;
+import util.MyArrayList;
+
+
 /**
  * Данный класс представляет реализацию БИНАРНОГО ДЕРЕВА
  */
@@ -77,7 +84,7 @@ public class BinaryTree<T> {
         int nodeCount = countNodes(root); // Создаем счетчик для количества узлов
         return isCompleteRec(root, 0, nodeCount);
     }
-//todo копирование дерева
+
     /**
      * Рекурсивно подсчитывает количество узлов дереве
      *
@@ -220,7 +227,7 @@ public class BinaryTree<T> {
 
     /**
      * Универсальный метод для применения обработчика к узлам дерева
-     * @param processor функциональный интерфейс для обработки узлов (TreeProcessor)
+     * @param processor функциональный интерфейс для обработки узлов (trees.TreeProcessor)
      * @param traversalType тип обхода: "NLr", "rNL", "Bfs"
      */
     public void apply(TreeProcessor<T> processor, String traversalType){
@@ -313,7 +320,7 @@ public class BinaryTree<T> {
     public static <T>  void applyBFS(TreeNode<T> node, TreeProcessor<T> processor) {
         if (node == null) return;
 
-        // Используем собственную очередь MyQueue
+        // Используем собственную очередь util.MyQueue
         MyQueue<TreeNode<T>> queue = new MyQueue<>();
         queue.add(node);    // Добавляем узел
 
@@ -381,7 +388,7 @@ public class BinaryTree<T> {
             throw new IllegalArgumentException("Collection не может быть null");
         }
 
-        // TreeProcessor добавляет значения в коллекцию
+        // trees.TreeProcessor добавляет значения в коллекцию
         TreeProcessor<T> collector = node -> collection.add(node.getValue());
         apply(collector,traversalType);
     }

@@ -4,11 +4,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.params.provider.NullSource;
+import trees.BaseNode;
+import util.StackNode;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Тесты для класса StackNode
+ * Тесты для класса util.StackNode
  */
 class StackNodeTest {
 
@@ -22,7 +24,7 @@ class StackNodeTest {
     }
 
     @Test
-    @DisplayName("Создание StackNode с корректным значением")
+    @DisplayName("Создание util.StackNode с корректным значением")
     void testStackNodeCreationWithValidValue() {
         assertNotNull(topNode);
         assertEquals("Top", topNode.getValue());
@@ -32,7 +34,7 @@ class StackNodeTest {
     }
 
     @Test
-    @DisplayName("Создание StackNode с null значением должно выбрасывать исключение")
+    @DisplayName("Создание util.StackNode с null значением должно выбрасывать исключение")
     void testStackNodeCreationWithNullValueThrowsException() {
         IllegalArgumentException exception = assertThrows(
                 IllegalArgumentException.class,
@@ -44,7 +46,7 @@ class StackNodeTest {
 
     @ParameterizedTest
     @NullSource
-    @DisplayName("Параметризованный тест: создание StackNode с null значением")
+    @DisplayName("Параметризованный тест: создание util.StackNode с null значением")
     void testStackNodeCreationWithNullValueParameterized(String nullValue) {
         assertThrows(IllegalArgumentException.class,
                 () -> new StackNode<String>(nullValue));
@@ -103,7 +105,7 @@ class StackNodeTest {
     void testToStringWithNullNext() {
         String result = topNode.toString();
 
-        assertTrue(result.contains("StackNode"));
+        assertTrue(result.contains("util.StackNode"));
         assertTrue(result.contains("значение: = Top"));
         assertTrue(result.contains("следующий: = null"));
     }
@@ -116,7 +118,7 @@ class StackNodeTest {
 
         String result = topNode.toString();
 
-        assertTrue(result.contains("StackNode"));
+        assertTrue(result.contains("util.StackNode"));
         assertTrue(result.contains("значение: = Top"));
         assertTrue(result.contains("следующий: = Second"));
     }
@@ -129,7 +131,7 @@ class StackNodeTest {
 
         String result = numericNode.toString();
 
-        assertTrue(result.contains("StackNode"));
+        assertTrue(result.contains("util.StackNode"));
         assertTrue(result.contains("значение: = 42"));
         assertTrue(result.contains("следующий: = 100"));
     }
@@ -231,7 +233,7 @@ class StackNodeTest {
     }
 
     @Test
-    @DisplayName("Тест наследования от BaseNode")
+    @DisplayName("Тест наследования от trees.BaseNode")
     void testInheritanceFromBaseNode() {
         StackNode<String> node = new StackNode<>("Test");
 
@@ -241,7 +243,7 @@ class StackNodeTest {
         node.setValue("Modified");
         assertEquals("Modified", node.getValue());
 
-        // Проверяем, что это действительно StackNode
+        // Проверяем, что это действительно util.StackNode
         assertTrue(node instanceof StackNode);
         assertTrue(node instanceof BaseNode);
     }

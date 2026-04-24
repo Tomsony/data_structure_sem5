@@ -1,6 +1,10 @@
+package util;
+
+import trees.BaseNode;
+
 /**
  * Класс представляет собой реализацию узла для стека.
- * Наследуется от основного класса BaseNode.
+ * Наследуется от основного класса trees.BaseNode.
  */
 public class StackNode<T> extends BaseNode<T> {
     private StackNode<T> next; // ссылка на следующий узел
@@ -34,7 +38,7 @@ public class StackNode<T> extends BaseNode<T> {
     @Override
     public String toString() {
         String nextInfo = (next != null) ? next.getValue().toString() : "null";
-        return "StackNode{ " +
+        return "util.StackNode{ " +
                 "значение: = " + getValue() +
                 ", следующий: = " + nextInfo + " }";
     }

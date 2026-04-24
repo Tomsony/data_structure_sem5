@@ -1,9 +1,11 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import util.MyArrayList;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Тесты для класса MyArrayList
+ * Тесты для класса util.MyArrayList
  */
 class MyArrayListTest {
 
