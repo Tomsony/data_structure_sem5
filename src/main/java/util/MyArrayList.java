@@ -1,11 +1,14 @@
 package util;
 
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 /**
  * Класс реализует Динамический Массив со всеми стандартными операциями
  *
  * @param <T> тип элементов в массиве
  */
-public class MyArrayList<T> {
+public class MyArrayList<T> implements Iterable<T> {
     private static final int DEFAULT_CAPACITY = 10;     // Cтандартная начальная емкость
     private int size;                                   // Текущее количество элементов в массиве
 
@@ -52,6 +55,36 @@ public class MyArrayList<T> {
      */
     public boolean isEmpty(){
         return size == 0;
+    }
+
+
+    // ================== РЕАЛИЗАЦИЯ ИТЕРАТОРА ДЛЯ ДИНАМИЧЕСКОГО МАССИВА ==================
+    /**
+     * Возвращает итератор для перебора элементов массива.
+     * Реализация интерфейса Iterable<T> позволяет использовать
+     * цикл for-each и передавать массив в алгоритмы из Algorithm.
+     *
+     * @return итератор по элементам массива
+     */
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<>() {
+            private int currentIndex = 0;   // текущая позиция итератора
+
+            @Override
+            public boolean hasNext() {
+                return currentIndex < size; // есть ли следующий элемент
+            }
+
+            @Override
+            @SuppressWarnings("unchecked")
+            public T next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException("Нет больше элементов");
+                }
+                return (T) elements[currentIndex++]; // возвращаем текущий и сдвигаемся
+            }
+        };
     }
 
     // ================== ДОБАВЛЕНИЕ ЭЛЕМЕНТОВ В МАССИВ ==================
