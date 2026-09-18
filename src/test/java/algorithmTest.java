@@ -285,9 +285,10 @@ class algorithmTest {
         // Фильтрация: слова длиной > 5
         MyArrayList<String> longWords = Algorithm.copy_if(words, w -> w.length() > 5);
 
-        assertEquals(2, longWords.size(), "Должно быть 2 слова длиной > 5: 'banana'(6), 'elderberry'(10)");
+        assertEquals(3, longWords.size(), "Должно быть 3 слова длиной > 5:" +
+                "'cherry'(6), 'banana'(6), 'elderberry'(10)");
         assertEquals("banana", longWords.get(0));
-        assertEquals("elderberry", longWords.get(1));
+        assertEquals("cherry", longWords.get(1));
 
         // Фильтрация: слова, начинающиеся с 'a'
         MyArrayList<String> startsWithA = Algorithm.copy_if(words, w -> w.startsWith("a"));

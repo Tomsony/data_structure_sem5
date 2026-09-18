@@ -38,15 +38,15 @@
          * Потребитель использует super, чтобы можно было передавать широкие обработчики.
          */
         public static <T> void for_each(Iterable<T> items, Consumer<? super T> action){
-            // 1. Получаем итератор у коллекции
+            // Получаем итератор у коллекции
             Iterator<T> iterator = items.iterator();
 
-            // 2. Пока в коллекции есть следующий элемент...
+            // Пока в коллекции есть следующий элемент
             while (iterator.hasNext()) {
-                // 3. Достаем этот элемент
+                // Достаем этот элемент
                 T item = iterator.next();
 
-                // 4. Выполняем действие (лямбду), которое передали в метод
+                // Выполняем действие (лямбду), которое передали в метод
                 action.accept(item);
             }
         }
@@ -80,8 +80,7 @@
          * @param <T> тип исходных элементов
          * @param <R> тип результирующих элементов
          */
-        public static <T, R> MyArrayList<R> transform(Iterable<T> items,
-                                                      Function<? super T, ? extends R> mapper) {
+        public static <T, R> MyArrayList<R> transform(Iterable<T> items, Function<? super T, ? extends R> mapper) {
             MyArrayList<R> result = new MyArrayList<>();
             for (T item : items) {
                 result.add(mapper.apply(item));
@@ -100,8 +99,7 @@
          * @return новый {@link MyArrayList} с элементами, удовлетворяющими условию
          * @param <T> тип элементов
          */
-        public static <T> MyArrayList<T> copy_if(Iterable<T> items,
-                                                 Predicate<? super T> pred) {
+        public static <T> MyArrayList<T> copy_if(Iterable<T> items, Predicate<? super T> pred) {
             MyArrayList<T> result = new MyArrayList<>();
             for (T item : items) {
                 if (pred.test(item)) {
@@ -110,4 +108,49 @@
             }
             return result;
         }
+
+
+        /**
+         * Проверяет, удовлетворяют ли абсолютно ВСЕ элементы контейнера заданному условию.
+         * Сигнатура C++: bool all_of(InputIterator first, InputIterator last, UnaryPredicate pred)
+         *
+         * @param items любая коллекция или объект, чей класс реализует интерфейс Iterable<T>
+         *              и предоставляет итератор по элементам типа T
+         * @param pred  объект-предикат (условие проверки)
+         * @param <T>   тип элементов в коллекции
+         * @return true - если каждый элемент коллекции прошел проверку, false - если хотя бы один не подошел
+         */
+        public static <T> boolean all_of(Iterable<T> items, Predicate<? super T> pred) {
+            // Перебираем элементы с помощью цикла for-each
+            for (T item : items) {
+                // Если хотя бы ОДИН элемент НЕ удовлетворяет условию (вернул false)
+                if (!pred.test(item)) {
+                    return false; // Условие все элементы нарушено — досрочный выход
+                }
+            }
+            return true; // Все элементы успешно прошли проверку
+        }
+
+        /**
+         * Проверяет, что НИ ОДИН элемент в контейнере НЕ удовлетворяет заданному условию.
+         * Сигнатура C++: bool none_of(InputIterator first, InputIterator last, UnaryPredicate pred)
+         *
+         * @param items любая коллекция или объект, чей класс реализует интерфейс Iterable<T>
+         *              и предоставляет итератор по элементам типа T
+         * @param pred  объект-предикат (условие проверки)
+         * @param <T>   тип элементов в коллекции
+         * @return true - если ни один элемент не подошел под условие, false - если нашелся хотя бы один подходящий
+         */
+        public static <T> boolean none_of(Iterable<T> items, Predicate<? super T> pred) {
+            // Перебираем элементы коллекции
+            for (T item : items) {
+                // Если нашелся хотя бы ОДИН элемент, для которого условие выполнилось (вернул true)
+                if (pred.test(item)) {
+                    return false; // Правило "ни одного" нарушено — досрочный выход
+                }
+            }
+            return true; // Действительно, ни один из элементов не подошел под предикат
+        }
+
+
     }

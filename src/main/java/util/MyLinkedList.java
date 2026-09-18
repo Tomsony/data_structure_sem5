@@ -394,19 +394,19 @@ public class MyLinkedList<T> implements Iterable<T> {
 
    @Override
    public T next() {
-    // 1) Проверка на конкурентную модификацию (fail-fast)
+    // Проверка на конкурентную модификацию (fail-fast)
     if (modCount != expectedModCount)
      throw new ConcurrentModificationException();
-    // 2) Проверка, есть ли следующий элемент (если нет – бросить исключение)
+    // Проверка, есть ли следующий элемент (если нет – бросить исключение)
     if (!hasNext())
      throw new NoSuchElementException();
-    // 2) Проверка, есть ли следующий элемент (если нет – бросить исключение)
+    // Сохраняем ссылку на текущий узел как последний возвращённый
     lastReturned = current;
-    // 4) Получаем значение из текущего узла
+    // Получаем значение из текущего узла
     T value = current.getValue();
-    // 5) Передвигаем указатель current на следующий узел
+    // Передвигаем указатель current на следующий узел
     current = current.next;
-    // 6) Возвращаем сохранённое значение
+    // Возвращаем сохранённое значение
     return value;
    }
 
@@ -467,7 +467,6 @@ public class MyLinkedList<T> implements Iterable<T> {
    }
   };
  }
-
 
  // ------------------- Приватные вспомогательные методы -------------------
  /**

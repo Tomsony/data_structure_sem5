@@ -7,6 +7,9 @@ import org.junit.jupiter.params.provider.ValueSource;
 import trees.BinarySearchTree;
 import trees.TreeNode;
 
+import java.util.ConcurrentModificationException;
+import java.util.NoSuchElementException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -607,6 +610,171 @@ public class BST_Test {
             assertEquals(10, result.getLeftChild().getValue());
             assertEquals(5, result.getLeftChild().getLeftChild().getValue());
             assertNull(result.getLeftChild().getLeftChild().getLeftChild());
+        }
+    }
+
+    @Nested
+    @DisplayName("Тесты итераторов")
+    class IteratorTests {
+
+        @Test
+        @DisplayName("In-order итератор пустого дерева")
+        void testInOrderIteratorEmptyTree() {
+            var it = bst.iterator();
+            assertFalse(it.hasNext());
+            assertThrows(NoSuchElementException.class, it::next);
+        }
+
+        @Test
+        @DisplayName("In-order итератор одного элемента")
+        void testInOrderIteratorSingleElement() {
+            bst.insert(5);
+            var it = bst.iterator();
+            assertTrue(it.hasNext());
+            assertEquals(5, it.next());
+            assertFalse(it.hasNext());
+            assertThrows(NoSuchElementException.class, it::next);
+        }
+
+        @Test
+        @DisplayName("In-order итератор выдаёт элементы в возрастающем порядке")
+        void testInOrderIteratorOrdering() {
+            int[] values = {4, 2, 6, 1, 3, 5, 7};
+            for (int v : values) bst.insert(v);
+
+            var it = bst.iterator();
+            int expected = 1;
+            while (it.hasNext()) {
+                assertEquals(expected, it.next());
+                expected++;
+            }
+            assertEquals(8, expected);
+        }
+
+        @Test
+        @DisplayName("In-order в for-each цикле")
+        void testInOrderIteratorForEach() {
+            bst.insert(3);
+            bst.insert(1);
+            bst.insert(2);
+            StringBuilder sb = new StringBuilder();
+            for (int val : bst) {
+                sb.append(val);
+            }
+            assertEquals("123", sb.toString());
+        }
+
+        @Test
+        @DisplayName("Удаление через in-order итератор (remove())")
+        void testInOrderIteratorRemove() {
+            bst.insert(2);
+            bst.insert(1);
+            bst.insert(3);
+            var it = bst.iterator();
+
+            assertEquals(1, it.next());
+            it.remove(); // удаляем наименьший
+            assertEquals(2, it.next());
+            assertEquals(3, it.next());
+            assertFalse(it.hasNext());
+
+            // после удаления 1, дерево должно содержать 2 и 3
+            assertFalse(bst.search(1));
+            assertTrue(bst.search(2));
+            assertTrue(bst.search(3));
+        }
+
+        @Test
+        @DisplayName("IllegalStateException при повторном remove() без next()")
+        void testInOrderIteratorDoubleRemove() {
+            bst.insert(1);
+            bst.insert(2);
+            var it = bst.iterator();
+            it.next();
+            it.remove();
+            assertThrows(IllegalStateException.class, it::remove);
+        }
+
+        @Test
+        @DisplayName("IllegalStateException при remove() до первого next()")
+        void testInOrderIteratorRemoveBeforeNext() {
+            bst.insert(1);
+            var it = bst.iterator();
+            assertThrows(IllegalStateException.class, it::remove);
+        }
+
+        @Test
+        @DisplayName("Fail-fast при вставке после создания итератора")
+        void testInOrderIteratorFailFastOnInsert() {
+            bst.insert(2);
+            bst.insert(1);
+            var it = bst.iterator();
+            assertEquals(1, it.next());
+            bst.insert(3); // структурная модификация
+            assertThrows(ConcurrentModificationException.class, it::next);
+        }
+
+        @Test
+        @DisplayName("Fail-fast при прямом удалении после создания итератора")
+        void testInOrderIteratorFailFastOnDirectRemove() {
+            bst.insert(2);
+            bst.insert(1);
+            var it = bst.iterator();
+            assertEquals(1, it.next());
+            bst.remove(2); // прямое удаление
+            assertThrows(ConcurrentModificationException.class, it::next);
+        }
+
+        @Test
+        @DisplayName("Descending итератор пустого дерева")
+        void testDescendingIteratorEmpty() {
+            var it = bst.descendingIterator();
+            assertFalse(it.hasNext());
+            assertThrows(NoSuchElementException.class, it::next);
+        }
+
+        @Test
+        @DisplayName("Descending итератор выдаёт элементы в убывающем порядке")
+        void testDescendingIteratorOrdering() {
+            int[] values = {4, 2, 6, 1, 3, 5, 7};
+            for (int v : values) bst.insert(v);
+
+            var it = bst.descendingIterator();
+            int expected = 7;
+            while (it.hasNext()) {
+                assertEquals(expected, it.next());
+                expected--;
+            }
+            assertEquals(0, expected);
+        }
+
+        @Test
+        @DisplayName("Удаление через descending итератор")
+        void testDescendingIteratorRemove() {
+            bst.insert(2);
+            bst.insert(1);
+            bst.insert(3);
+            var it = bst.descendingIterator();
+            assertEquals(3, it.next());
+            it.remove(); // удаляем максимум
+            assertEquals(2, it.next());
+            assertEquals(1, it.next());
+            assertFalse(it.hasNext());
+
+            assertFalse(bst.search(3));
+            assertTrue(bst.search(2));
+            assertTrue(bst.search(1));
+        }
+
+        @Test
+        @DisplayName("Fail-fast descending итератор при вставке")
+        void testDescendingIteratorFailFast() {
+            bst.insert(2);
+            bst.insert(1);
+            var it = bst.descendingIterator();
+            assertEquals(2, it.next());
+            bst.insert(3);
+            assertThrows(ConcurrentModificationException.class, it::next);
         }
     }
 
