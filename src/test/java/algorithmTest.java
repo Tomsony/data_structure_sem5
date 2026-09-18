@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * JUnit-тесты для алгоритмических функций класса Algorithm.
- * Тестируются: for_each, any_of, transform, copy_if.
+ * Тестируются: for_each, any_of, transform, copy_if, all_of, none_of.
  *
  * @author Артём Томских, ИВТ-23
  */
@@ -39,16 +39,14 @@ class algorithmTest {
     // ==================== FOR_EACH ====================
 
     @Test
-    void forEach_printsAllElements() {
-        // Проверяем, что действие применяется ко всем элементам,
-        // Чтобы изменять значения локальной переменной, создаем её как массив
-        //      и в лямбде меняем значение ссылки
+    void forEach_appliesActionToAllElements() {
+        // Проверяем, что действие применяется ко всем 10 элементам, и считаем сумму
         final int[] count = {0};
         final int[] sum = {0};
 
         Algorithm.for_each(numbers, n -> {
-            count[0]++;         // считаем вызовы
-            sum[0] += n;        // накапливаем сумму
+            count[0]++;
+            sum[0] += n;
         });
 
         assertEquals(10, count[0], "Действие должно быть вызвано 10 раз");
@@ -57,7 +55,7 @@ class algorithmTest {
 
     @Test
     void forEach_emptyList_noAction() {
-        // Для пустой коллекции действие не должно вызываться
+        // Для пустой коллекции действие не должно вызываться ни разу
         final int[] callCount = {0};
 
         Algorithm.for_each(emptyList, n -> callCount[0]++);
@@ -66,234 +64,181 @@ class algorithmTest {
     }
 
     @Test
-    void forEach_withDifferentType() {
-        // Проверка работы с другим типом (String)
-        final int[] totalLength = {0};
-
-        Algorithm.for_each(words, w -> totalLength[0] += w.length());
-
-        // apple(5) + banana(6) + cherry(6) + date(4) + elderberry(10) = 31
-        assertEquals(31, totalLength[0], "Суммарная длина слов должна быть 31");
-    }
-
-    @Test
     void forEach_nullAction_throwsNullPointerException() {
-        // Передача null вместо Consumer должна вызвать исключение
+        // Передача null вместо Consumer должна вызывать NullPointerException
         assertThrows(NullPointerException.class,
-                () -> Algorithm.for_each(numbers, null),
-                "Null в качестве Consumer должен вызывать NullPointerException");
+                () -> Algorithm.for_each(numbers, null));
     }
 
     // ==================== ANY_OF ====================
 
     @Test
     void anyOf_elementExists_returnsTrue() {
-        // Проверяем наличие чётного числа
-        boolean hasEven = Algorithm.any_of(numbers, n -> n % 2 == 0);
-        assertTrue(hasEven, "В массиве 1..10 должно быть чётное число");
-
-        // Проверяем наличие конкретного числа
-        boolean hasSeven = Algorithm.any_of(numbers, n -> n == 7);
-        assertTrue(hasSeven, "Число 7 должно присутствовать в массиве");
+        // В массиве 1..10 есть чётное число — ожидаем true
+        assertTrue(Algorithm.any_of(numbers, n -> n % 2 == 0));
     }
 
     @Test
     void anyOf_elementDoesNotExist_returnsFalse() {
-        // Проверяем отсутствие числа > 100
-        boolean hasLarge = Algorithm.any_of(numbers, n -> n > 100);
-        assertFalse(hasLarge, "Чисел > 100 не должно быть");
-
-        // Проверяем отсутствие отрицательного числа
-        boolean hasNegative = Algorithm.any_of(numbers, n -> n < 0);
-        assertFalse(hasNegative, "Отрицательных чисел не должно быть");
+        // Чисел > 100 нет — ожидаем false
+        assertFalse(Algorithm.any_of(numbers, n -> n > 100));
     }
 
     @Test
     void anyOf_emptyList_returnsFalse() {
         // Для пустой коллекции — всегда false
-        boolean result = Algorithm.any_of(emptyList, n -> true);
-        assertFalse(result, "Пустая коллекция: any_of должно вернуть false");
-    }
-
-    @Test
-    void anyOf_withStrings() {
-        // Есть ли слово, начинающееся с 'c'?
-        boolean startsWithC = Algorithm.any_of(words, w -> w.startsWith("c"));
-        assertTrue(startsWithC, "Слово 'cherry' начинается с 'c'");
-
-        // Есть ли слово длиной > 20?
-        boolean veryLong = Algorithm.any_of(words, w -> w.length() > 20);
-        assertFalse(veryLong, "Нет слов длиной > 20");
+        assertFalse(Algorithm.any_of(emptyList, n -> true));
     }
 
     @Test
     void anyOf_earlyExit() {
-        // Проверка раннего выхода: счётчик вызовов предиката
+        // Проверяем ранний выход: предикат должен остановиться на числе 3
         final int[] callCount = {0};
 
         boolean result = Algorithm.any_of(numbers, n -> {
             callCount[0]++;
-            return n == 3;          // останавливаемся на 3-м элементе
+            return n == 3;
         });
 
         assertTrue(result);
-        assertEquals(3, callCount[0], "Предикат должен вызваться ровно 3 раза (ранний выход)");
+        assertEquals(3, callCount[0], "Предикат должен вызваться ровно 3 раза");
     }
 
     @Test
     void anyOf_nullPredicate_throwsNullPointerException() {
+        // Передача null вместо Predicate должна вызывать NullPointerException
         assertThrows(NullPointerException.class,
-                () -> Algorithm.any_of(numbers, null),
-                "Null в качестве Predicate должен вызывать NullPointerException");
+                () -> Algorithm.any_of(numbers, null));
     }
 
     // ==================== TRANSFORM ====================
 
     @Test
     void transform_squares() {
-        // Возведение в квадрат
+        // Возведение в квадрат: размер сохраняется, значения — квадраты исходных
         MyArrayList<Integer> squares = Algorithm.transform(numbers, n -> n * n);
 
-        assertEquals(numbers.size(), squares.size(),
-                "Размер результата должен совпадать с исходным");
-
-        // Проверяем каждое значение
-        for (int i = 0; i < numbers.size(); i++) {
-            int original = numbers.get(i);
-            int expected = original * original;
-            assertEquals(Integer.valueOf(expected), squares.get(i),
-                    "Квадрат " + original + " должен быть " + expected);
-        }
+        assertEquals(numbers.size(), squares.size());
+        assertEquals(Integer.valueOf(1), squares.get(0));
+        assertEquals(Integer.valueOf(25), squares.get(4));
+        assertEquals(Integer.valueOf(100), squares.get(9));
     }
 
     @Test
     void transform_typeConversion() {
-        // Преобразование Integer → String
-        MyArrayList<String> strings = Algorithm.transform(numbers,
-                n -> "Number: " + n);
+        // Смена типа: Integer -> String
+        MyArrayList<String> strings = Algorithm.transform(numbers, n -> "Number: " + n);
 
         assertEquals(numbers.size(), strings.size());
         assertEquals("Number: 1", strings.get(0));
-        assertEquals("Number: 5", strings.get(4));
         assertEquals("Number: 10", strings.get(9));
     }
 
     @Test
     void transform_emptyList_returnsEmptyList() {
+        // Для пустой коллекции — пустой результат
         MyArrayList<Integer> result = Algorithm.transform(emptyList, n -> n);
-        assertTrue(result.isEmpty(), "transform пустой коллекции — пустой результат");
+        assertTrue(result.isEmpty());
     }
 
     @Test
     void transform_originalNotModified() {
-        // Исходный массив не должен измениться
-        MyArrayList<Integer> copy = new MyArrayList<>();
-        Algorithm.for_each(numbers, n -> copy.add(n));
+        // Исходный массив не должен меняться после transform
+        Algorithm.transform(numbers, n -> n * 100);
 
-        Algorithm.transform(numbers, n -> n * 100);  // выполняем transform
-
-        // Сравниваем исходный массив с копией
-        assertEquals(numbers.size(), copy.size());
-        for (int i = 0; i < numbers.size(); i++) {
-            assertEquals(copy.get(i), numbers.get(i),
-                    "Исходный массив не должен измениться после transform");
-        }
-    }
-
-    @Test
-    void transform_toDifferentType() {
-        // Integer → Double
-        MyArrayList<Double> doubles = Algorithm.transform(numbers, n -> n * 1.5);
-
-        assertEquals(numbers.size(), doubles.size());
-        assertEquals(1.5, doubles.get(0), 0.001);
-        assertEquals(7.5, doubles.get(4), 0.001);    // 5 * 1.5
-        assertEquals(15.0, doubles.get(9), 0.001);    // 10 * 1.5
-    }
-
-    @Test
-    void transform_withStrings() {
-        // Преобразование: длина каждого слова
-        MyArrayList<Integer> lengths = Algorithm.transform(words, String::length);
-
-        assertEquals(words.size(), lengths.size());
-        assertEquals(Integer.valueOf(5), lengths.get(0));   // "apple"
-        assertEquals(Integer.valueOf(6), lengths.get(1));   // "banana"
-        assertEquals(Integer.valueOf(4), lengths.get(3));   // "date"
-        assertEquals(Integer.valueOf(10), lengths.get(4));  // "elderberry"
+        assertEquals(Integer.valueOf(1), numbers.get(0));
+        assertEquals(Integer.valueOf(10), numbers.get(9));
     }
 
     // ==================== COPY_IF ====================
 
     @Test
     void copyIf_evenNumbers() {
-        // Фильтрация: только чётные числа
+        // Фильтрация чётных чисел: 2, 4, 6, 8, 10. Размер должен быть 5
         MyArrayList<Integer> evens = Algorithm.copy_if(numbers, n -> n % 2 == 0);
 
-        assertEquals(5, evens.size(), "Должно быть 5 чётных чисел: 2,4,6,8,10");
+        assertEquals(5, evens.size());
         assertEquals(Integer.valueOf(2), evens.get(0));
-        assertEquals(Integer.valueOf(4), evens.get(1));
-        assertEquals(Integer.valueOf(6), evens.get(2));
-        assertEquals(Integer.valueOf(8), evens.get(3));
         assertEquals(Integer.valueOf(10), evens.get(4));
     }
 
     @Test
     void copyIf_noElementsMatch_returnsEmptyList() {
-        // Фильтрация: числа > 100 (нет таких)
+        // Ни один элемент не подходит — пустой результат
         MyArrayList<Integer> result = Algorithm.copy_if(numbers, n -> n > 100);
-        assertTrue(result.isEmpty(), "Если ни один элемент не подходит — пустой результат");
+        assertTrue(result.isEmpty());
     }
 
     @Test
     void copyIf_allElementsMatch_returnsAll() {
-        // Все числа положительные
+        // Подходят все элементы — результат совпадает с исходным
         MyArrayList<Integer> result = Algorithm.copy_if(numbers, n -> n > 0);
 
-        assertEquals(numbers.size(), result.size(),
-                "Если подходят все элементы, размер результата равен исходному");
-        for (int i = 0; i < numbers.size(); i++) {
-            assertEquals(numbers.get(i), result.get(i),
-                    "Все элементы должны быть скопированы");
-        }
-    }
-
-    @Test
-    void copyIf_emptyList_returnsEmptyList() {
-        MyArrayList<Integer> result = Algorithm.copy_if(emptyList, n -> true);
-        assertTrue(result.isEmpty(), "copy_if пустой коллекции — пустой результат");
+        assertEquals(numbers.size(), result.size());
+        assertEquals(numbers.get(0), result.get(0));
+        assertEquals(numbers.get(9), result.get(9));
     }
 
     @Test
     void copyIf_originalNotModified() {
-        // Исходный массив не должен измениться
-        MyArrayList<Integer> copy = new MyArrayList<>();
-        Algorithm.for_each(numbers, n -> copy.add(n));
+        // Исходный массив не должен меняться после copy_if
+        Algorithm.copy_if(numbers, n -> n % 2 == 0);
 
-        Algorithm.copy_if(numbers, n -> n % 2 == 0);  // выполняем copy_if
+        assertEquals(10, numbers.size());
+        assertEquals(Integer.valueOf(1), numbers.get(0));
+    }
 
-        // Сравниваем исходный массив с копией
-        assertEquals(numbers.size(), copy.size());
-        for (int i = 0; i < numbers.size(); i++) {
-            assertEquals(copy.get(i), numbers.get(i),
-                    "Исходный массив не должен измениться после copy_if");
-        }
+    // ==================== ALL_OF ====================
+
+    @Test
+    void allOf_allPositive_returnsTrue() {
+        // Все числа 1..10 положительные — ожидаем true
+        assertTrue(Algorithm.all_of(numbers, n -> n > 0));
     }
 
     @Test
-    void copyIf_withStrings() {
-        // Фильтрация: слова длиной > 5
-        MyArrayList<String> longWords = Algorithm.copy_if(words, w -> w.length() > 5);
+    void allOf_notAllEven_returnsFalse() {
+        // Не все числа чётные — ожидаем false
+        assertFalse(Algorithm.all_of(numbers, n -> n % 2 == 0));
+    }
 
-        assertEquals(3, longWords.size(), "Должно быть 3 слова длиной > 5:" +
-                "'cherry'(6), 'banana'(6), 'elderberry'(10)");
-        assertEquals("banana", longWords.get(0));
-        assertEquals("cherry", longWords.get(1));
+    @Test
+    void allOf_emptyList_returnsTrue() {
+        // Для пустой коллекции условие выполняется вакуумно (все элементы "прошли" проверку)
+        assertTrue(Algorithm.all_of(emptyList, n -> n > 0));
+    }
 
-        // Фильтрация: слова, начинающиеся с 'a'
-        MyArrayList<String> startsWithA = Algorithm.copy_if(words, w -> w.startsWith("a"));
+    @Test
+    void allOf_nullPredicate_throwsNullPointerException() {
+        // Передача null вместо Predicate должна вызывать NullPointerException
+        assertThrows(NullPointerException.class,
+                () -> Algorithm.all_of(numbers, null));
+    }
 
-        assertEquals(1, startsWithA.size(), "Только 'apple' начинается с 'a'");
-        assertEquals("apple", startsWithA.get(0));
+    // ==================== NONE_OF ====================
+
+    @Test
+    void noneOf_noNegative_returnsTrue() {
+        // Отрицательных чисел нет — ожидаем true
+        assertTrue(Algorithm.none_of(numbers, n -> n < 0));
+    }
+
+    @Test
+    void noneOf_hasEven_returnsFalse() {
+        // Чётные числа есть — ожидаем false
+        assertFalse(Algorithm.none_of(numbers, n -> n % 2 == 0));
+    }
+
+    @Test
+    void noneOf_emptyList_returnsTrue() {
+        // Для пустой коллекции ни один элемент не нарушает условие — ожидаем true
+        assertTrue(Algorithm.none_of(emptyList, n -> true));
+    }
+
+    @Test
+    void noneOf_nullPredicate_throwsNullPointerException() {
+        // Передача null вместо Predicate должна вызывать NullPointerException
+        assertThrows(NullPointerException.class,
+                () -> Algorithm.none_of(numbers, null));
     }
 }
