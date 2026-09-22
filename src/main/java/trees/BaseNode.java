@@ -4,7 +4,7 @@ package trees;
  * Базовый абстрактный класс для узлов
  * Содержит общую логику для всех типов узлов
  */
-public abstract class BaseNode<T> {   // Абстрактный класс - это класс, который нельзя инсталлировать.
+public abstract class BaseNode<T> {   // Абстрактный класс - это класс, который нельзя инстанцировать.
                                         // Он служит шаблоном для других классов.
     protected T value;      // Доступ в том же классе
                             // Доступ в классах-наследниках (в других пакетах)
@@ -35,6 +35,9 @@ public abstract class BaseNode<T> {   // Абстрактный класс - э�
      * @param value новое значение узла
      */
     public void setValue(T value) {
+        if (value == null) {
+            throw new IllegalArgumentException("Значение узла не может быть пустым");
+        }
         this.value = value;
     }
 

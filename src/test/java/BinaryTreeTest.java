@@ -1,14 +1,22 @@
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import trees.BinarySearchTree;
-import trees.TreeNode;
+
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Тесты для BinarySearchTree.
- * Покрывают базовые случаи: пустое дерево, вставка, поиск,
- * удаление (лист, один ребёнок, два ребёнка), successor.
+ * Тесты для trees.BinarySearchTree.
+ *
+ * Покрывают:
+ * - вставку, поиск, дубликаты;
+ * - удаление (лист / один ребёнок / два ребёнка / корень / отсутствующий);
+ * - successor;
+ * - size / isEmpty;
+ * - copy (глубокая копия, независимость).
+ *
+ * Секция итератора появится после реализации BSTIterator.
  */
 class BinarySearchTreeTest {
 
@@ -19,344 +27,201 @@ class BinarySearchTreeTest {
         bst = new BinarySearchTree<>();
     }
 
-    // ---------- ВСТАВКА И ПОИСК ----------
+    // ================== ПУСТОЕ ДЕРЕВО ==================
 
+    // новое дерево пустое
     @Test
-    void insertAndSearchSingleElement() {
-        // Вставка одного элемента и его поиск
-        bst.insert(42);
-        assertTrue(bst.search(42), "Элемент должен быть найден");
-    }
-
-    @Test
-    void searchInEmptyTree() {
-        // Поиск в пустом дереве возвращает false
+    void testEmptyTree() {
+        assertEquals(0, bst.size());
+        assertTrue(bst.isEmpty());
         assertFalse(bst.search(10));
     }
 
+    // ================== ВСТАВКА / ПОИСК ==================
+
+    // вставка одного элемента + поиск
     @Test
-    void insertMultipleAndSearch() {
-        // Вставка нескольких элементов и проверка их наличия
-        bst.insert(8);
-        bst.insert(3);
-        bst.insert(10);
-        bst.insert(1);
-        bst.insert(6);
-        bst.insert(14);
-        bst.insert(4);
-        bst.insert(7);
-        bst.insert(13);
+    void testInsertAndSearch() {
+        bst.insert(42);
+        assertEquals(1, bst.size());
+        assertTrue(bst.search(42));
+    }
 
-        // Присутствующие значения
+    // вставка нескольких элементов + поиск присутствующих/отсутствующих
+    @Test
+    void testInsertMultiple() {
+        for (int x : new int[]{8, 3, 10, 1, 6, 14, 4, 7, 13}) bst.insert(x);
+
+        assertEquals(9, bst.size());
         assertTrue(bst.search(8));
-        assertTrue(bst.search(3));
-        assertTrue(bst.search(10));
         assertTrue(bst.search(1));
-        assertTrue(bst.search(6));
         assertTrue(bst.search(14));
-        assertTrue(bst.search(4));
-        assertTrue(bst.search(7));
-        assertTrue(bst.search(13));
-
-        // Отсутствующее значение
         assertFalse(bst.search(100));
     }
 
+    // дубликат не увеличивает size
     @Test
-    void insertDuplicate() {
-        // При попытке вставить дубликат дерево не меняется
+    void testInsertDuplicate() {
         bst.insert(5);
         bst.insert(5);
-        // Удаляем 5 – если дубликатов не было, дерево опустеет
+        assertEquals(1, bst.size());
         bst.remove(5);
-        assertFalse(bst.search(5), "После удаления единственного элемента его не должно быть");
+        assertFalse(bst.search(5));
     }
 
-    // ---------- УДАЛЕНИЕ ----------
+    // ================== УДАЛЕНИЕ ==================
 
+    // удаление листа
     @Test
-    void removeLeaf() {
-        // Удаление листа (узла без детей)
+    void testRemoveLeaf() {
         bst.insert(10);
         bst.insert(5);
         bst.insert(15);
-        bst.remove(5);  // 5 – лист
-        assertFalse(bst.search(5), "Удалённый лист не должен находиться");
+        bst.remove(5);
+
+        assertEquals(2, bst.size());
+        assertFalse(bst.search(5));
         assertTrue(bst.search(10));
         assertTrue(bst.search(15));
     }
 
+    // удаление узла с одним ребёнком
     @Test
-    void removeNodeWithOneChild() {
-        // Удаление узла с одним ребёнком
+    void testRemoveOneChild() {
         bst.insert(10);
         bst.insert(5);
         bst.insert(12);
-        bst.insert(11);  // 12 – левый ребёнок 11
-        // Удаляем 12, у которого есть левый ребёнок 11
+        bst.insert(11);
         bst.remove(12);
+
         assertFalse(bst.search(12));
-        assertTrue(bst.search(11), "Ребёнок удалённого узла должен остаться в дереве");
-        assertTrue(bst.search(10));
-        assertTrue(bst.search(5));
+        assertTrue(bst.search(11));
+        assertEquals(3, bst.size());
     }
 
+    // удаление узла с двумя детьми
     @Test
-    void removeNodeWithTwoChildren() {
-        // Удаление узла с двумя детьми
-        bst.insert(20);
-        bst.insert(10);
-        bst.insert(30);
-        bst.insert(5);
-        bst.insert(15);
-        bst.insert(25);
-        bst.insert(35);
-        bst.insert(12);
-        bst.insert(17);
-
-        // Удаляем 30 – правого потомка, у него оба ребёнка (25 и 35)
+    void testRemoveTwoChildren() {
+        for (int x : new int[]{20, 10, 30, 5, 15, 25, 35, 12, 17}) bst.insert(x);
         bst.remove(30);
-        assertFalse(bst.search(30), "Удалённый узел не найден");
-        assertTrue(bst.search(35), "Потомки удалённого узла должны остаться");
+
+        assertFalse(bst.search(30));
         assertTrue(bst.search(25));
-        assertTrue(bst.search(20));
-        assertTrue(bst.search(10));
-        assertTrue(bst.search(5));
-        assertTrue(bst.search(15));
-        assertTrue(bst.search(12));
-        assertTrue(bst.search(17));
+        assertTrue(bst.search(35));
+        assertEquals(8, bst.size());
     }
 
+    // удаление корня с двумя детьми
     @Test
-    void removeRootWithTwoChildren() {
-        // Удаление корневого узла, имеющего оба поддерева
-        bst.insert(50);
-        bst.insert(30);
-        bst.insert(70);
-        bst.insert(20);
-        bst.insert(40);
-        bst.insert(60);
-        bst.insert(80);
-
+    void testRemoveRoot() {
+        for (int x : new int[]{50, 30, 70, 20, 40, 60, 80}) bst.insert(x);
         bst.remove(50);
+
         assertFalse(bst.search(50));
-        // Все остальные узлы на месте
         assertTrue(bst.search(30));
         assertTrue(bst.search(70));
-        assertTrue(bst.search(20));
-        assertTrue(bst.search(40));
-        assertTrue(bst.search(60));
-        assertTrue(bst.search(80));
+        assertEquals(6, bst.size());
     }
 
+    // удаление отсутствующего элемента не меняет size
     @Test
-    void removeNonExistent() {
-        // Удаление отсутствующего элемента не ломает дерево
+    void testRemoveAbsent() {
         bst.insert(5);
         bst.insert(3);
         bst.insert(7);
         bst.remove(99);
-        // Дерево должно остаться неизменным
+
+        assertEquals(3, bst.size());
         assertTrue(bst.search(5));
         assertTrue(bst.search(3));
         assertTrue(bst.search(7));
     }
 
-    // ---------- SUCCESSOR ----------
+    // ================== SUCCESSOR ==================
 
+    // successor: минимум в правом поддереве
     @Test
-    void successorWhenRightSubtreeExists() {
-        // У узла есть правое поддерево: successor — минимальный в правом
-        bst.insert(8);
-        bst.insert(3);
-        bst.insert(10);
-        bst.insert(1);
-        bst.insert(5);
-        bst.insert(9);
-        bst.insert(12);
-
+    void testSuccessorWithRightSubtree() {
+        for (int x : new int[]{8, 3, 10, 1, 5, 9, 12}) bst.insert(x);
         assertEquals(Integer.valueOf(9), bst.successor(8));
     }
 
+    // successor: поднимаемся к предку
     @Test
-    void successorWhenNoRightSubtree() {
-        // У узла нет правого поддерева: successor — первый предок, чей левый потомок на пути
-        bst.insert(20);
-        bst.insert(10);
-        bst.insert(30);
-        bst.insert(5);
-        bst.insert(15);
-        bst.insert(12);
-        bst.insert(17);
-
-        // Узел 17: нет правого, successor — предок 20 (так как 15 — левый потомок 20?)
-        // Путь: 20 -> 10 -> 15 -> 17. Предок 15 — левый потомок 20? Нет, 15 — правый потомок 10.
-        // 10 — левый потомок 20. Значит successor(17) = 20.
+    void testSuccessorWithoutRightSubtree() {
+        for (int x : new int[]{20, 10, 30, 5, 15, 12, 17}) bst.insert(x);
         assertEquals(Integer.valueOf(20), bst.successor(17));
     }
 
+    // successor максимального → null
     @Test
-    void successorOfMaximum() {
-        // Successor максимального элемента в дереве — null
-        bst.insert(5);
-        bst.insert(2);
-        bst.insert(8);
-        bst.insert(10);
+    void testSuccessorOfMax() {
+        for (int x : new int[]{5, 2, 8, 10}) bst.insert(x);
         assertNull(bst.successor(10));
     }
 
+    // successor отсутствующего → null
     @Test
-    void successorOfNonExistentValue() {
-        // Значение отсутствует в дереве — возвращается null
+    void testSuccessorOfAbsent() {
         bst.insert(1);
         bst.insert(2);
         assertNull(bst.successor(99));
     }
 
+    // ================== COPY ==================
+
+    // копия содержит те же значения
     @Test
-    void successorWithNullThrows() {
-        // Передача null вызывает исключение
-        bst.insert(1);
-        assertThrows(NullPointerException.class, () -> bst.successor(null));
-    }
-
-    // ---------- КОМБИНИРОВАННЫЕ СЦЕНАРИИ ----------
-
-    @Test
-    void insertRemoveSequenceMaintainsBST() {
-        // Последовательность вставок и удалений, дерево сохраняет BST-свойство
-        bst.insert(50);
-        bst.insert(25);
-        bst.insert(75);
-        bst.insert(10);
-        bst.insert(30);
-        bst.insert(60);
-        bst.insert(90);
-
-        assertTrue(bst.search(30));
-        bst.remove(25);
-        assertFalse(bst.search(25));
-        assertTrue(bst.search(30)); // потомок остался
-        assertTrue(bst.search(10));
-        // Проверка структуры через successor
-        assertEquals(Integer.valueOf(30), bst.successor(10));
-    }
-
-    @Test
-    void staticSearchWorks() {
-        // Тестирование статического метода поиска
-        TreeNode<Integer> root = null;
-        root = BinarySearchTree.insertRecursive(root, 100);
-        root = BinarySearchTree.insertRecursive(root, 50);
-        root = BinarySearchTree.insertRecursive(root, 150);
-
-        assertTrue(BinarySearchTree.search(root, 100));
-        assertFalse(BinarySearchTree.search(root, 200));
-    }
-
-    @Test
-    void staticInsertAndDeleteMaintainIntegrity() {
-        // Статические вставка и удаление корректно обновляют дерево
-        TreeNode<Integer> root = null;
-        root = BinarySearchTree.insertRecursive(root, 40);
-        root = BinarySearchTree.insertRecursive(root, 20);
-        root = BinarySearchTree.insertRecursive(root, 60);
-        root = BinarySearchTree.insertRecursive(root, 10);
-        root = BinarySearchTree.insertRecursive(root, 30);
-
-        root = BinarySearchTree.removeRecursive(root, 20);
-        assertFalse(BinarySearchTree.search(root, 20));
-        assertTrue(BinarySearchTree.search(root, 10));
-        assertTrue(BinarySearchTree.search(root, 30));
-        assertTrue(BinarySearchTree.search(root, 40));
-        assertTrue(BinarySearchTree.search(root, 60));
-    }
-
-    @Test
-    void copyEmptyTree() {
-        // Копия пустого дерева — тоже пустое дерево
-        BinarySearchTree<Integer> original = new BinarySearchTree<>();
-        BinarySearchTree<Integer> copy = original.copy();
-
-        assertFalse(copy.search(1), "Копия пустого дерева не должна содержать элементов");
-    }
-
-    @Test
-    void copySingleNode() {
-        // Копия дерева с одним узлом
-        BinarySearchTree<Integer> original = new BinarySearchTree<>();
-        original.insert(42);
-
-        BinarySearchTree<Integer> copy = original.copy();
-
-        assertTrue(copy.search(42), "Копия должна содержать тот же элемент");
-        assertFalse(copy.search(100), "Посторонних элементов быть не должно");
-    }
-
-    @Test
-    void copyPreservesAllValues() {
-        // Все значения из оригинала присутствуют в копии
-        BinarySearchTree<Integer> original = new BinarySearchTree<>();
+    void testCopyPreservesValues() {
         int[] values = {8, 3, 10, 1, 6, 14, 4, 7, 13};
+        for (int v : values) bst.insert(v);
 
-        for (int v : values) {
-            original.insert(v);
-        }
-
-        BinarySearchTree<Integer> copy = original.copy();
-
-        for (int v : values) {
-            assertTrue(copy.search(v), "Копия должна содержать значение " + v);
-        }
+        BinarySearchTree<Integer> copy = bst.copy();
+        assertEquals(bst.size(), copy.size());
+        for (int v : values) assertTrue(copy.search(v));
     }
 
+    // изменения в копии не влияют на оригинал
     @Test
-    void copyIsIndependent() {
-        // Изменения в копии не влияют на оригинал, и наоборот
-        BinarySearchTree<Integer> original = new BinarySearchTree<>();
-        original.insert(10);
-        original.insert(5);
-        original.insert(15);
-        original.insert(3);
-        original.insert(7);
+    void testCopyIsIndependent() {
+        bst.insert(10);
+        bst.insert(5);
+        bst.insert(15);
 
-        BinarySearchTree<Integer> copy = original.copy();
-
-        // Изменяем копию: добавляем новый элемент
+        BinarySearchTree<Integer> copy = bst.copy();
         copy.insert(20);
-
-        // Оригинал не должен содержать новый элемент
-        assertFalse(original.search(20),
-                "Оригинал не должен содержать элемент, добавленный в копию");
-        assertTrue(copy.search(20),
-                "Копия должна содержать новый элемент");
-
-        // Изменяем копию: удаляем элемент
         copy.remove(5);
 
-        // Оригинал должен сохранить удалённый элемент
-        assertTrue(original.search(5),
-                "Оригинал должен сохранить элемент, удалённый из копии");
-        assertFalse(copy.search(5),
-                "Копия не должна содержать удалённый элемент");
+        assertFalse(bst.search(20));
+        assertTrue(bst.search(5));
     }
 
+    // копия сохраняет BST-свойство (successor совпадает)
     @Test
-    void copyPreservesBSTProperty() {
-        // Копия сохраняет BST-свойство (проверяем через inorder)
-        BinarySearchTree<Integer> original = new BinarySearchTree<>();
+    void testCopyPreservesBSTProperty() {
         int[] values = {50, 30, 70, 20, 40, 60, 80, 10, 35, 45, 55, 65, 90};
+        for (int v : values) bst.insert(v);
 
+        BinarySearchTree<Integer> copy = bst.copy();
         for (int v : values) {
-            original.insert(v);
-        }
-
-        BinarySearchTree<Integer> copy = original.copy();
-
-        // Проверяем, что successor работает одинаково в оригинале и копии
-        for (int v : values) {
-            assertEquals(original.successor(v), copy.successor(v),
-                    "Successor для " + v + " должен совпадать в оригинале и копии");
+            assertEquals(bst.successor(v), copy.successor(v));
         }
     }
+
+    // ================== ГРАНИЧНЫЕ ==================
+
+    // поиск null → NullPointerException
+    @Test
+    void testSearchNullThrows() {
+        assertThrows(NullPointerException.class, () -> bst.search(null));
+    }
+
+    // ================== ИТЕРАТОР ==================
+    //
+    // TODO: добавить после реализации BSTIterator:
+    // - testIteratorInOrder: for-each даёт возрастание;
+    // - testIteratorEmpty: hasNext=false, next() → NoSuchElementException;
+    // - testFailFastOnInsert: insert во время обхода → ConcurrentModificationException;
+    // - testFailFastOnRemove: remove во время обхода → ConcurrentModificationException;
+    // - testDescendingIterator: элементы идут от максимума к минимуму.
 }

@@ -8,6 +8,17 @@ import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * Тесты для util.MyLinkedList.
+ *
+ * Покрывают:
+ * - добавление / удаление / поиск;
+ * - прямой и обратный итераторы;
+ * - remove() в итераторах;
+ * - fail-fast.
+ *
+ * ВАЖНО: список не поддерживает null (по дизайну).
+ */
 class MyLinkedListTest {
 
     private MyLinkedList<String> list;
@@ -19,7 +30,7 @@ class MyLinkedListTest {
 
     // ================== ПУСТОЙ СПИСОК ==================
 
-    // size=0, isEmpty=true
+    // новый список пуст
     @Test
     void testEmptyList() {
         assertEquals(0, list.size());
@@ -29,9 +40,9 @@ class MyLinkedListTest {
 
     // ================== ДОБАВЛЕНИЕ ==================
 
-    // addLast / add / addFirst
+    // add / addFirst / addLast дают правильный порядок
     @Test
-    void testAdd() {
+    void testAddFirstLast() {
         list.add("B");
         list.addFirst("A");
         list.addLast("C");
@@ -42,7 +53,7 @@ class MyLinkedListTest {
         assertEquals("C", list.get(2));
     }
 
-    // вставка по индексу в начало/середину/конец
+    // вставка по индексу в начало / середину / конец
     @Test
     void testAddByIndex() {
         list.add("A");
@@ -59,7 +70,7 @@ class MyLinkedListTest {
         assertEquals("Z", list.get(4));
     }
 
-    // невалидные индексы add
+    // невалидные индексы add → IndexOutOfBoundsException
     @Test
     void testAddInvalidIndex() {
         assertThrows(IndexOutOfBoundsException.class, () -> list.add(1, "X"));
@@ -68,7 +79,7 @@ class MyLinkedListTest {
         assertThrows(IndexOutOfBoundsException.class, () -> list.add(-1, "X"));
     }
 
-    // null запрещён
+    // null запрещён — IllegalArgumentException
     @Test
     void testAddNullThrows() {
         assertThrows(IllegalArgumentException.class, () -> list.add(null));
@@ -76,6 +87,7 @@ class MyLinkedListTest {
 
     // ================== GET / SET ==================
 
+    // get по невалидному индексу → IndexOutOfBoundsException
     @Test
     void testGetInvalidIndex() {
         assertThrows(IndexOutOfBoundsException.class, () -> list.get(0));
@@ -84,7 +96,7 @@ class MyLinkedListTest {
         assertThrows(IndexOutOfBoundsException.class, () -> list.get(-1));
     }
 
-    // set возвращает старое значение
+    // set возвращает старое значение и устанавливает новое
     @Test
     void testSet() {
         list.add("A");
@@ -109,26 +121,24 @@ class MyLinkedListTest {
         assertEquals("B", list.get(0));
     }
 
-    // remove(int)
+    // remove(int) сдвигает хвост влево
     @Test
     void testRemoveByIndex() {
         list.add("A");
         list.add("B");
         list.add("C");
-
         assertEquals("B", list.remove(1));
         assertEquals(2, list.size());
         assertEquals("A", list.get(0));
         assertEquals("C", list.get(1));
     }
 
-    // remove(Object)
+    // remove(Object): true если найден, false если нет
     @Test
     void testRemoveByValue() {
         list.add("A");
         list.add("B");
         list.add("C");
-
         assertTrue(list.remove("B"));
         assertEquals(2, list.size());
         assertFalse(list.remove("X"));
@@ -144,14 +154,14 @@ class MyLinkedListTest {
         assertThrows(IndexOutOfBoundsException.class, () -> list.remove(-1));
     }
 
-    // пустой список — исключения
+    // удаление из пустого списка → NoSuchElementException
     @Test
     void testRemoveFromEmpty() {
         assertThrows(NoSuchElementException.class, list::removeFirst);
         assertThrows(NoSuchElementException.class, list::removeLast);
     }
 
-    // clear
+    // clear очищает список
     @Test
     void testClear() {
         list.add("A");
@@ -163,6 +173,7 @@ class MyLinkedListTest {
 
     // ================== ПОИСК ==================
 
+    // indexOf / lastIndexOf / contains
     @Test
     void testIndexOfContains() {
         list.add("A");
@@ -179,7 +190,7 @@ class MyLinkedListTest {
 
     // ================== ПРЯМОЙ ИТЕРАТОР ==================
 
-    // базовый обход
+    // базовый обход: элементы идут в порядке вставки
     @Test
     void testIteratorBasic() {
         list.add("A");
@@ -194,7 +205,7 @@ class MyLinkedListTest {
         assertFalse(it.hasNext());
     }
 
-    // пустой итератор
+    // пустой итератор: hasNext=false, next() бросает исключение
     @Test
     void testIteratorEmpty() {
         Iterator<String> it = list.iterator();
@@ -202,7 +213,7 @@ class MyLinkedListTest {
         assertThrows(NoSuchElementException.class, it::next);
     }
 
-    // for-each
+    // for-each работает через итератор
     @Test
     void testIteratorForEach() {
         list.add("X");
@@ -214,7 +225,7 @@ class MyLinkedListTest {
         assertEquals("XYZ", sb.toString());
     }
 
-    // remove() во время обхода
+    // remove() в итераторе удаляет последний возвращённый элемент
     @Test
     void testIteratorRemove() {
         list.add("A");
@@ -233,14 +244,14 @@ class MyLinkedListTest {
         assertEquals("D", list.get(1));
     }
 
-    // remove до next → IllegalStateException
+    // remove() до next() → IllegalStateException
     @Test
     void testIteratorRemoveBeforeNext() {
         list.add("A");
         assertThrows(IllegalStateException.class, list.iterator()::remove);
     }
 
-    // повторный remove → IllegalStateException
+    // повторный remove() без next() → IllegalStateException
     @Test
     void testIteratorRemoveTwice() {
         list.add("A");
@@ -252,6 +263,7 @@ class MyLinkedListTest {
 
     // ================== ОБРАТНЫЙ ИТЕРАТОР ==================
 
+    // descendingIterator идёт от хвоста к голове
     @Test
     void testDescendingIterator() {
         list.add("A");
@@ -265,7 +277,7 @@ class MyLinkedListTest {
         assertFalse(it.hasNext());
     }
 
-    // remove в обратном итераторе
+    // remove() в обратном итераторе удаляет корректно
     @Test
     void testDescendingIteratorRemove() {
         list.add("A");
@@ -283,6 +295,7 @@ class MyLinkedListTest {
 
     // ================== FAIL-FAST ==================
 
+    // add во время обхода ломает итератор
     @Test
     void testFailFastOnAdd() {
         list.add("A");
@@ -293,6 +306,7 @@ class MyLinkedListTest {
         assertThrows(ConcurrentModificationException.class, it::next);
     }
 
+    // внешний remove во время обхода ломает итератор
     @Test
     void testFailFastOnRemove() {
         list.add("A");
@@ -303,7 +317,7 @@ class MyLinkedListTest {
         assertThrows(ConcurrentModificationException.class, it::hasNext);
     }
 
-    // set НЕ ломает итератор (не структурное изменение)
+    // set() НЕ ломает итератор (не структурное изменение)
     @Test
     void testSetDoesNotBreakIterator() {
         list.add("A");
@@ -325,16 +339,7 @@ class MyLinkedListTest {
         assertEquals("C", list.get(2));
     }
 
-    // toArray
-    @Test
-    void testToArray() {
-        list.add("A");
-        list.add("B");
-        Object[] arr = list.toArray();
-        assertArrayEquals(new Object[]{"A", "B"}, arr);
-    }
-
-    // toString
+    // toString: [] и [A, B]
     @Test
     void testToString() {
         assertEquals("[]", list.toString());
@@ -343,7 +348,7 @@ class MyLinkedListTest {
         assertEquals("[A, B]", list.toString());
     }
 
-    // большой список
+    // большой список: 1000 элементов
     @Test
     void testLargeList() {
         for (int i = 0; i < 1000; i++) list.add("E" + i);

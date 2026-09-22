@@ -10,6 +10,12 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Тесты для util.MyArrayList.
+ *
+ * Покрывают:
+ * - конструкторы и базовые операции;
+ * - добавление / удаление / поиск / очистку;
+ * - итератор: базовый обход, remove() в итераторе, fail-fast;
+ * - граничные случаи (пустой список, null, большой объём).
  */
 class MyArrayListTest {
 
@@ -24,14 +30,14 @@ class MyArrayListTest {
 
     // ================== КОНСТРУКТОРЫ ==================
 
-    // пустой список
+    // пустой список по умолчанию: size=0, isEmpty=true
     @Test
     void testDefaultConstructor() {
         assertEquals(0, list.size());
         assertTrue(list.isEmpty());
     }
 
-    // заданная ёмкость, список пустой
+    // заданная ёмкость: список всё равно пустой
     @Test
     void testConstructorWithCapacity() {
         MyArrayList<String> custom = new MyArrayList<>(20);
@@ -39,11 +45,12 @@ class MyArrayListTest {
         assertTrue(custom.isEmpty());
     }
 
-    // нулевая ёмкость + add расширяет массив
+    // нулевая ёмкость + add → массив расширяется, элемент доступен
     @Test
     void testConstructorWithZeroCapacity() {
         MyArrayList<String> zero = new MyArrayList<>(0);
         zero.add("A");
+        assertEquals(1, zero.size());
         assertEquals("A", zero.get(0));
     }
 
@@ -55,7 +62,7 @@ class MyArrayListTest {
 
     // ================== ADD ==================
 
-    // добавление в конец
+    // добавление в конец: элементы идут в порядке вставки
     @Test
     void testAddToEnd() {
         list.add("A");
@@ -68,7 +75,7 @@ class MyArrayListTest {
         assertEquals("C", list.get(2));
     }
 
-    // вставка по индексу
+    // вставка по индексу: хвост сдвигается вправо
     @Test
     void testAddByIndex() {
         list.add("A");
@@ -81,7 +88,7 @@ class MyArrayListTest {
         assertEquals("C", list.get(2));
     }
 
-    // невалидные индексы → IndexOutOfBoundsException
+    // невалидные индексы add → IndexOutOfBoundsException
     @Test
     void testAddInvalidIndex() {
         assertThrows(IndexOutOfBoundsException.class, () -> list.add(1, "X"));
@@ -90,7 +97,7 @@ class MyArrayListTest {
         assertThrows(IndexOutOfBoundsException.class, () -> list.add(-1, "X"));
     }
 
-    // авторасширение при превышении ёмкости
+    // авторасширение: при превышении capacity массив растёт
     @Test
     void testAutoExpansion() {
         MyArrayList<String> small = new MyArrayList<>(2);
@@ -105,7 +112,7 @@ class MyArrayListTest {
 
     // ================== GET / SET ==================
 
-    // невалидные индексы get
+    // get по невалидному индексу → IndexOutOfBoundsException
     @Test
     void testGetInvalidIndex() {
         assertThrows(IndexOutOfBoundsException.class, () -> list.get(0));
@@ -114,7 +121,7 @@ class MyArrayListTest {
         assertThrows(IndexOutOfBoundsException.class, () -> list.get(-1));
     }
 
-    // set возвращает старое значение
+    // set возвращает старое значение и устанавливает новое
     @Test
     void testSet() {
         list.add("A");
@@ -126,7 +133,7 @@ class MyArrayListTest {
         assertEquals(2, list.size());
     }
 
-    // невалидные индексы set
+    // set по невалидному индексу → IndexOutOfBoundsException
     @Test
     void testSetInvalidIndex() {
         assertThrows(IndexOutOfBoundsException.class, () -> list.set(0, "X"));
@@ -136,7 +143,7 @@ class MyArrayListTest {
 
     // ================== REMOVE ==================
 
-    // удаление по индексу со сдвигом
+    // remove по индексу возвращает элемент и сдвигает хвост влево
     @Test
     void testRemoveByIndex() {
         list.add("A");
@@ -150,7 +157,7 @@ class MyArrayListTest {
         assertEquals("C", list.get(1));
     }
 
-    // невалидные индексы remove
+    // невалидные индексы remove → IndexOutOfBoundsException
     @Test
     void testRemoveInvalidIndex() {
         assertThrows(IndexOutOfBoundsException.class, () -> list.remove(0));
@@ -159,7 +166,7 @@ class MyArrayListTest {
         assertThrows(IndexOutOfBoundsException.class, () -> list.remove(-1));
     }
 
-    // удаление по значению
+    // remove по значению: true если найден, false если нет
     @Test
     void testRemoveByValue() {
         list.add("A");
@@ -172,7 +179,7 @@ class MyArrayListTest {
         assertEquals(2, list.size());
     }
 
-    // удаление null
+    // remove(null) корректно ищет и удаляет null-элемент
     @Test
     void testRemoveNull() {
         list.add("A");
@@ -183,7 +190,7 @@ class MyArrayListTest {
 
     // ================== indexOf / contains / clear ==================
 
-    // поиск и проверка наличия
+    // indexOf находит первое вхождение, contains проверяет наличие
     @Test
     void testIndexOfContains() {
         list.add("A");
@@ -197,7 +204,7 @@ class MyArrayListTest {
         assertFalse(list.contains("X"));
     }
 
-    // очистка
+    // clear очищает список: size=0, isEmpty=true
     @Test
     void testClear() {
         list.add("A");
@@ -210,7 +217,7 @@ class MyArrayListTest {
 
     // ================== ИТЕРАТОР ==================
 
-    // базовый обход
+    // базовый обход: hasNext/next возвращают элементы по порядку
     @Test
     void testIteratorBasic() {
         list.add("A");
@@ -225,7 +232,7 @@ class MyArrayListTest {
         assertFalse(it.hasNext());
     }
 
-    // пустой итератор
+    // пустой итератор: hasNext=false, next() бросает NoSuchElementException
     @Test
     void testIteratorEmpty() {
         Iterator<String> it = list.iterator();
@@ -233,7 +240,7 @@ class MyArrayListTest {
         assertThrows(NoSuchElementException.class, it::next);
     }
 
-    // for-each
+    // for-each использует итератор и перебирает элементы по порядку
     @Test
     void testIteratorForEach() {
         list.add("X");
@@ -245,7 +252,7 @@ class MyArrayListTest {
         assertEquals("XYZ", sb.toString());
     }
 
-    // null-элементы в итераторе
+    // null-элементы корректно перебираются итератором
     @Test
     void testIteratorWithNull() {
         list.add("A");
@@ -261,7 +268,7 @@ class MyArrayListTest {
 
     // ================== REMOVE В ИТЕРАТОРЕ ==================
 
-    // удаление во время обхода
+    // remove() в итераторе удаляет последний возвращённый элемент
     @Test
     void testIteratorRemove() {
         list.add("A");
@@ -280,7 +287,7 @@ class MyArrayListTest {
         assertEquals("D", list.get(1));
     }
 
-    // remove до next → IllegalStateException
+    // remove() до next() → IllegalStateException
     @Test
     void testIteratorRemoveBeforeNext() {
         list.add("A");
@@ -288,7 +295,7 @@ class MyArrayListTest {
         assertThrows(IllegalStateException.class, it::remove);
     }
 
-    // повторный remove → IllegalStateException
+    // повторный remove() без next() → IllegalStateException
     @Test
     void testIteratorRemoveTwice() {
         list.add("A");
@@ -300,7 +307,7 @@ class MyArrayListTest {
 
     // ================== FAIL-FAST ==================
 
-    // add во время обхода
+    // add во время обхода ломает итератор
     @Test
     void testFailFastOnAdd() {
         list.add("A");
@@ -313,7 +320,7 @@ class MyArrayListTest {
         assertThrows(ConcurrentModificationException.class, it::next);
     }
 
-    // remove во время обхода
+    // remove во время обхода (через внешний метод) ломает итератор
     @Test
     void testFailFastOnRemove() {
         list.add("A");
@@ -327,7 +334,7 @@ class MyArrayListTest {
         assertThrows(ConcurrentModificationException.class, it::hasNext);
     }
 
-    // clear во время обхода
+    // clear во время обхода ломает итератор
     @Test
     void testFailFastOnClear() {
         list.add("A");
@@ -340,7 +347,7 @@ class MyArrayListTest {
         assertThrows(ConcurrentModificationException.class, it::hasNext);
     }
 
-    // set НЕ ломает итератор
+    // set() НЕ ломает итератор (не структурное изменение)
     @Test
     void testSetDoesNotBreakIterator() {
         list.add("A");
@@ -353,7 +360,7 @@ class MyArrayListTest {
         assertDoesNotThrow(() -> assertEquals("B", it.next()));
     }
 
-    // remove() итератора НЕ ломает его самого
+    // remove() через сам итератор НЕ ломает его
     @Test
     void testIteratorRemoveDoesNotBreakIterator() {
         list.add("A");
@@ -369,7 +376,7 @@ class MyArrayListTest {
 
     // ================== РАЗНЫЕ ТИПЫ / БОЛЬШИЕ ОБЪЁМЫ ==================
 
-    // Integer-список
+    // работа с Integer-списком
     @Test
     void testIntegerList() {
         intList.add(10);
@@ -381,7 +388,7 @@ class MyArrayListTest {
         assertEquals(20, intList.get(2));
     }
 
-    // null-элементы
+    // null-элементы поддерживаются всеми операциями
     @Test
     void testNullElements() {
         list.add(null);
@@ -394,7 +401,7 @@ class MyArrayListTest {
         assertEquals("Apple", list.get(2));
     }
 
-    // 1000 элементов
+    // большой список: 1000 элементов + стресс авторасширения
     @Test
     void testLargeList() {
         for (int i = 0; i < 1000; i++) list.add("E" + i);
@@ -403,7 +410,7 @@ class MyArrayListTest {
         assertEquals("E999", list.get(999));
     }
 
-    // toString
+    // toString: пустой → [], с элементами → [A, B]
     @Test
     void testToString() {
         assertEquals("[]", list.toString());
