@@ -4,6 +4,8 @@ package trees;
  * Класс представляет собой реализацию узла для бинарного дерева.
  * Класс использует ссылочный тип T.
  * Наследуется от основного класса trees.BaseNode.
+ *
+ * @author Артём Томских, ИВТ-23
  */
 public class TreeNode<T> extends BaseNode<T> {
     private TreeNode<T> leftChild; // ссылка на левого потомка

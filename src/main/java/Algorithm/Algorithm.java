@@ -1,9 +1,11 @@
-    package util;
+package Algorithm;
 
-    import java.util.Iterator;
-    import java.util.function.Consumer;  // accept(T t) — выполняет действие, ничего не возвращает
-    import java.util.function.Function;
-    import java.util.function.Predicate; // test(T t) — возвращает true/false (проверка условия)
+import util.MyArrayList;
+
+import java.util.Iterator;
+import java.util.function.Consumer;  // accept(T t) — выполняет действие, ничего не возвращает
+import java.util.function.Function;
+import java.util.function.Predicate; // test(T t) — возвращает true/false (проверка условия)
 
     /**
      * Данный класс реализует универсальные функции из С++ для работы с диапазонами
@@ -15,6 +17,8 @@
      *  - any_of
      *  - transform
      *  - copy_if
+     *  - all_of
+     *  - none_of
      *
      * @author Артём Томских, ИВТ-23
      */
